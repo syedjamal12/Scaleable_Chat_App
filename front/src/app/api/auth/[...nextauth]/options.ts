@@ -27,6 +27,12 @@ export const authOptions: AuthOptions = {
   
   callbacks: {
     
+    async signIn({ user, account}) {
+      console.log("check user",user)
+      console.log("check account",account)
+      return true
+    },
+
     async session({ session, user, token }:{session:CustomSession,user:CustomUser,token:JWT}) {
       session.user=token.user as CustomUser
       return session

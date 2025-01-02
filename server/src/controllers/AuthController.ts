@@ -1,6 +1,6 @@
-import { Request,Response } from "express";
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import prisma from "../config/db.config.js";
-import jwt from "jsonwebtoken"
 
 interface LoginPayLoad{
     name:string,
@@ -11,40 +11,38 @@ interface LoginPayLoad{
 }
 
 class AuthController{
-    static async login(req:Request,res:Response){
-      const body:LoginPayLoad = req.body;
-      try{
-        let findUser = await prisma.user.findUnique({
-            where:{
-                email:body.email
-            }
-          })
-          if(!findUser){
-            findUser = await prisma.user.create({
-                data:body
-            })
-          }
-          let jwtPayload = {
-            name:body.name,
-            email:body.email,
-            id:findUser.id
-          }
-          const token = jwt.sign(jwtPayload,process.env.JWT_SECRET,{
-            expiresIn:"365d"
-          })
-          return res.json({
-            message:"Logged in successfully",
-            user : {
-                ...findUser,
-                token: `Bearer ${token}`
-            }
-          })
-
-      }catch(error){
-        return res.status(500).json({message:"something error"})
+  static async login(req: Request, res: Response) {
+    const { name, email, provider, oauth_id, image }: LoginPayLoad = req.body;
+    try {
+      let user = await prisma.user.findUnique({
+        where: { email },
+      });
+  
+      if (!user) {
+        user = await prisma.user.create({
+          data: { name, email, provider, oauth_id, image },
+        });
       }
-     
+  
+      const token = jwt.sign(
+        { id: user.id, name: user.name, email: user.email },
+        process.env.JWT_SECRET || "default_secret",
+        { expiresIn: "365d" }
+      );
+  
+      return res.json({
+        message: "Logged in successfully",
+        user: {
+          ...user,
+          token: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error("Error logging in:", error);
+      return res.status(500).json({ message: "Something went wrong" });
     }
+  }
+  
 }
 
 export default AuthController

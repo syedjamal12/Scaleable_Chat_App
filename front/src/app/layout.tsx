@@ -3,6 +3,7 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
+import SessionProvider from "@/components/providers/SessionProvider";
 
 const fontSans = FontSans({
   variable: "--font-sans",
@@ -21,6 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <SessionProvider>
       <body
 className={cn(
   "min-h-screen bg-background font-sans antialiased",
@@ -28,6 +30,9 @@ className={cn(
 )}      >
         {children}
       </body>
+
+      </SessionProvider>
+      
     </html>
   );
 }

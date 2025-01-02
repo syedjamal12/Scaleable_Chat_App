@@ -15,13 +15,14 @@ datasource db {
 
 model User {
   id         Int         @id @default(autoincrement())
-  name       String      @db.VarChar(191)
+  name       String?     @db.VarChar(191) // Make name optional
   email      String      @unique
-  provider   String   
+  provider   String
   oauth_id   String
   image      String?
   created_at DateTime    @default(now())
 
   @@map("users")
- 
+  @@unique([provider, oauth_id]) // Composite unique constraint
 }
+

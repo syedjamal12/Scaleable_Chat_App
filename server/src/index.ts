@@ -23,5 +23,6 @@ app.use(express.urlencoded({ extended: false }));
 app.get("/", (req, res) => res.send("It's working 🙌"));
 
 app.use("/api", router);
+console.log("first")
 
-app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
+app.listen(PORT, () => console.log(`Server is running11111 on PORT ${PORT}`));

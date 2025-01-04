@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,15 +8,14 @@ datasource db {
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  name       String?     @db.VarChar(191) // Make name optional
-  email      String      @unique
+  id         Int      @id @default(autoincrement())
+  name       String?  @db.VarChar(191)
+  email      String   @unique
   provider   String
   oauth_id   String
   image      String?
-  created_at DateTime    @default(now())
+  created_at DateTime @default(now())
 
+  @@unique([provider, oauth_id])
   @@map("users")
-  @@unique([provider, oauth_id]) // Composite unique constraint
 }
-

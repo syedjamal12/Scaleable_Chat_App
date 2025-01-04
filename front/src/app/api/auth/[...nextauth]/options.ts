@@ -38,6 +38,7 @@ export const authOptions: AuthOptions = {
           provider: account?.provider,
           image: user.image,
         };
+        console.log("api se pehle")
         const { data } = await axios.post(LOGIN_URL, payload);
         console.log("API response:", data);
     
@@ -74,6 +75,7 @@ export const authOptions: AuthOptions = {
 
 },
   // Configure one or more authentication providers
+  
   providers: [
     GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -90,3 +92,6 @@ export const authOptions: AuthOptions = {
   ],
 }
 
+{
+  console.log("env checkkk",process.env.GOOGLE_CLIENT_SECRET)
+}

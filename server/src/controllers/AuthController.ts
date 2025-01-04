@@ -13,6 +13,7 @@ interface LoginPayLoad{
 class AuthController{
   static async login(req: Request, res: Response) {
     const { name, email, provider, oauth_id, image }: LoginPayLoad = req.body;
+    console.log("third")
     try {
       let user = await prisma.user.findUnique({
         where: { email },

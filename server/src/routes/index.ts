@@ -9,5 +9,17 @@ router.post("/auth/login", AuthController.login);
 console.log("route check")
 router.post("/chat-group", authMiddleware, ChatGroupController.store);
 
+router.get("/user-groups", authMiddleware, ChatGroupController.index);
+
+router.get("/user-group/:id", authMiddleware, ChatGroupController.show);
+
+router.post("/user-group-update/:id", authMiddleware, ChatGroupController.update);
+
+router.post("/user-group-delete/:id", authMiddleware, ChatGroupController.delete);
+
+
+
+
+
 
 export default router;

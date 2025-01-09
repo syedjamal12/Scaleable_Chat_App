@@ -7,7 +7,7 @@ class ChatGroupController{
             const body = req.body;
             const user = req.user;
 
-            await prisma.chatGroup.create({
+        const data=    await prisma.chatGroup.create({
                 data:{
 
                     user_id:user.id,
@@ -15,7 +15,7 @@ class ChatGroupController{
                     passcode:body.passcode
                 }
             })
-            return res.json({message:"Chat Group created Successfully"})
+            return res.json({message:"Chat Group created Successfully",data:data})
         }catch(error){
             res.status(500).json({
                 message:"something error"

@@ -21,6 +21,7 @@ const authMiddleware = (req:Request, res:Response, next:NextFunction) =>{
                 message:"UnAuthorized"
             })
         }
+        console.log("userrrrr",user)
         req.user = user as AuthUser
         next()
     })

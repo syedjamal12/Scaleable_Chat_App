@@ -11,8 +11,15 @@ import {
   } from "@/components/ui/dialog"
 import Image from 'next/image'
 import { Button } from '../ui/button'
+import { signIn } from 'next-auth/react'
   
-
+ 
+const handleLogin=()=>{
+  signIn("google",{
+    callbackUrl:"/dashboard",
+    redirect:true
+  })
+}
 const LoginModal = () => {
   return (
     <Dialog>
@@ -27,7 +34,7 @@ const LoginModal = () => {
           conversations in seconds.
         </DialogDescription>
       </DialogHeader>
-      <Button variant="outline" >
+      <Button variant="outline" onClick={handleLogin}>
         <Image
           src="/images/google.png"
           className=" mr-4"

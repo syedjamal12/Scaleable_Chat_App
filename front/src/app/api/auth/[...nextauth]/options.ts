@@ -1,8 +1,10 @@
-import NextAuth, { ISODateString } from "next-auth"
-import { AuthOptions } from "next-auth"
-import GoogleProvider from "next-auth/providers/google"
+import { LOGIN_URL } from "@/lib/apiEndPoints";
+import axios from "axios";
 import dotenv from "dotenv";
+import { Account, AuthOptions, ISODateString } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import GoogleProvider from "next-auth/providers/google";
+
 dotenv.config();
 
 export interface CustomSession {
@@ -20,39 +22,60 @@ export interface CustomUser{
 }
 
 export const authOptions: AuthOptions = {
-    pages:{
-        signIn: "/",
-    },
-
+  secret: process.env.NEXTAUTH_SECRET, // Add this line
   
+  pages: {
+    signIn: "/",
+  },
   callbacks: {
-    
-    async session({ session, user, token }:{session:CustomSession,user:CustomUser,token:JWT}) {
-      session.user=token.user as CustomUser
-      return session
-    },
-    async jwt({ token, user}) {
-      if(user){
-        token.user=user
+    async signIn({ user, account }: { user: CustomUser; account: Account | null }) {
+      try {
+        const payload = {
+          name: user.name,
+          email: user.email,
+          oauth_id: account?.providerAccountId,
+          provider: account?.provider,
+          image: user.image,
+        };
+        const { data } = await axios.post(LOGIN_URL, payload);
+        user.id = data?.user?.id?.toString();
+        user.provider = data?.user?.provider;
+        user.token = data?.user?.token;
+        return true;
+      } catch (error) {
+        console.error("API call failed:", error);
+        return false;
       }
-      return token
-    }
-
-},
-  // Configure one or more authentication providers
+    },
+    async session({ session, token }) {
+      session.user = token.user as CustomUser;
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
+    },
+  },
   providers: [
     GoogleProvider({
-        clientId: process.env.GOOGLE_CLIENT_ID as string,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        authorization: {
-            params: {
-              prompt: "consent",
-              access_type: "offline",
-              response_type: "code"
-            }
-          }
-      })
-    // ...add more providers here
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+        },
+      },
+    }),
   ],
-}
+};
 
+console.log("next auth>>",process.env.NEXTAUTH_SECRET)
+
+
+{
+  console.log("env checkkk",process.env.GOOGLE_CLIENT_ID)
+}

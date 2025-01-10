@@ -5,10 +5,13 @@ import Navbar from "@/components/base/Navbar";
 import UserReviews from "@/components/base/UserReviews";
 import { getServerSession } from "next-auth";
 import { authOptions, CustomSession } from "./api/auth/[...nextauth]/options";
+import { fetchChatGroup } from "@/fetch/groupFetch";
 
 export default async function Home() {
 
   const session: CustomSession | null = await getServerSession(authOptions)
+
+
 
   return (
     <div className="min-h-screen flex flex-col ">

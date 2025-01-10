@@ -2,9 +2,14 @@ import DashNav from "@/components/chatGroup/DashNav";
 import { getServerSession } from "next-auth";
 import { authOptions, CustomSession } from "../api/auth/[...nextauth]/options";
 import CreateChat from "@/components/groupChat/CreateChat";
+import { fetchChatGroup } from "@/fetch/groupFetch";
 
 export default async function Dashboard() {
   const session: CustomSession | null = await getServerSession(authOptions);
+
+  const data: Array<string> = await fetchChatGroup(session?.user?.token) || [];
+
+  console.log("dataaa",data)
 
   return (
     <div>

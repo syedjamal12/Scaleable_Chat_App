@@ -103,6 +103,7 @@ class ChatGroupController{
             })
             return res.json({message:"Chat deleted Successfully", data:data})
         }catch(error){
+            console.log(error)
             res.status(500).json({
                 message:"something error"
             })

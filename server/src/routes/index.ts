@@ -13,9 +13,9 @@ router.get("/user-groups", authMiddleware, ChatGroupController.index);
 
 router.get("/user-group/:id", authMiddleware, ChatGroupController.show);
 
-router.post("/user-group-update/:id", authMiddleware, ChatGroupController.update);
+router.put("/user-group-update/:id", authMiddleware, ChatGroupController.update);
 
-router.post("/user-group-delete/:id", authMiddleware, ChatGroupController.delete);
+router.delete("/user-group-delete/:id", authMiddleware, ChatGroupController.delete);
 
 
 

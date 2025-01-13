@@ -2,8 +2,8 @@ import { Request,Response,NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
 const authMiddleware = (req:Request, res:Response, next:NextFunction) =>{
-    console.log("tokennn",req)
     const authHandler = req.headers.authorization;
+    console.log("tokennnnnnnn",authHandler)
 
     if(authHandler==null || authHandler==undefined)
     {

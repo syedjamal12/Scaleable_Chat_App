@@ -1,10 +1,24 @@
-import cors from "cors";
+import cors from "cors"
 import "dotenv/config";
 import express, { Application } from "express";
+const app:Application = express()
 import router from "./routes/index.js";
+import {Server} from "socket.io"
+import { createServer } from "http";
+import { setupSocket } from "./socket.js";
 
-const app: Application = express();
 const PORT = process.env.PORT || 7000;
+
+const server =createServer(app)
+
+const io = new Server(server, {
+  cors:{
+    origin:"*"
+  }
+})
+
+setupSocket(io);
+export {io}
 
 // Log the port being used
 console.log(`Using PORT: ${PORT}`);
@@ -16,10 +30,12 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-app.use(cors({
-  origin: "http://localhost:3000", // Your frontend URL
-  methods: "GET, POST",
-}));
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Replace with your frontend URL
+    credentials: true, // Allow credentials
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -34,4 +50,4 @@ console.log("Applying /api router");
 app.use("/api", router);
 
 // Start server
-app.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
+server.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));

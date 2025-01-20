@@ -113,23 +113,7 @@ class ChatGroupController {
     }
   }
 
-  static async GroupUser(req: Request, res: Response) {
-    try {
-      const body = req.body;
-      const { id } = req.params;
-      const data = await prisma.groupUsers.create({
-        data: {
-          group_id: id,
-          name: body.name,
-        },
-      });
-      return res.json({ message: "Group user added Successfully", data: data });
-    } catch (error) {
-      res.status(500).json({
-        message: "something error",
-      });
-    }
-  }
+ 
 }
 
 export default ChatGroupController;

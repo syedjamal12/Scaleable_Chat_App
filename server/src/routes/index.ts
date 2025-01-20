@@ -2,6 +2,7 @@ import { Router } from "express";
 import AuthController from "../controllers/AuthController.js";
 import authMiddleware from "../middlewares/AuthMiddleware.js";
 import ChatGroupController from "../controllers/ChatGroupController.js";
+import ChatGroupUserController from "../controllers/ChatGroupUserController.js";
 
 const router = Router();
 
@@ -26,7 +27,8 @@ router.delete(
 );
 
 
-router.post("/chat-user/:id", ChatGroupController.GroupUser);
+router.post("/chat-group-user-create", ChatGroupUserController.store);
+router.get("/chat-group-user", ChatGroupUserController.index);
 
 
 export default router;

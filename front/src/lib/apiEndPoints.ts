@@ -12,7 +12,9 @@ export const GROUP_DELETE = API_URL + "/user-group-delete";
 
 export const GROUP_UPDATE = API_URL + "/user-group-update";
 
+export const CHAT_GROUP_USERS = API_URL + "/chat-group-user";
 
+export const CHAT_GROUP_USERS_CREATE = API_URL + "/chat-group-user-create"
 
 console.log("LOGIN_URL:", LOGIN_URL);  // Check if it's correct
 

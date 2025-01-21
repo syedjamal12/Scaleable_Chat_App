@@ -2,6 +2,7 @@ import React from "react";
 import ChatBase from "@/components/chat/ChatBase";
 import { fetchChatSingleGroup, groupChatUsers } from "@/fetch/groupFetch";
 import { notFound } from "next/navigation";
+import { fetchChatMsg } from "@/fetch/chatsFetch";
 
   const page = async({ params }: { params: { id: string } }) => {
   console.log("The group id", params?.id);
@@ -16,12 +17,15 @@ import { notFound } from "next/navigation";
   }
   const users:Array<GroupChatUserType> | []= await groupChatUsers(params?.id);
   console.log("dataaa fetcheddd user",users)
-  
+
+  const chats:Array<MessageType> | []= await fetchChatMsg(params?.id);
+  console.log("chats dataaa",chats)
+
   console.log("single dataaa",fetch)
   return (
     <div>
       <h1>Hello I am chat</h1>
-      <ChatBase group={group} users={users}/>
+      <ChatBase group={group} users={users} oldMessages={chats}/>
     </div>
   );
 };

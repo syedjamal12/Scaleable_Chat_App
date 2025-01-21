@@ -13,6 +13,7 @@ import { useParams } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
 import { CHAT_GROUP_USERS_CREATE } from "@/lib/apiEndPoints";
+import { clearCache } from "@/actions/common";
 
 export default function ChatUserDialog({
   open,
@@ -53,6 +54,8 @@ export default function ChatUserDialog({
           name: state.name,
          id: params["id"] as string,
         });
+        clearCache("chat");
+        
         localStorage.setItem(
           params["id"] as string,
           JSON.stringify(data?.data)

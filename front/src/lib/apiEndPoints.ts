@@ -16,5 +16,10 @@ export const CHAT_GROUP_USERS = API_URL + "/chat-group-user";
 
 export const CHAT_GROUP_USERS_CREATE = API_URL + "/chat-group-user-create"
 
+
+export const CHAT_MSG = API_URL + "/chat"
+
+
+
 console.log("LOGIN_URL:", LOGIN_URL);  // Check if it's correct
 

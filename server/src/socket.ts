@@ -1,29 +1,34 @@
 import { error } from "console";
 import { Server, Socket } from "socket.io";
+import prisma from "./config/db.config.js";
 
 interface customSocket extends Socket {
-  room? : string
+  room?: string;
 }
 
 export function setupSocket(io: Server) {
-
-  io.use((socket:customSocket,next)=>{
-    const room = socket.handshake.auth.room || socket.handshake.headers.room
-    if(!room){
-      return next(new error("Invalid room"))
+  io.use((socket: customSocket, next) => {
+    const room = socket.handshake.auth.room || socket.handshake.headers.room;
+    if (!room) {
+      return next(new error("Invalid room"));
     }
-    socket.room = room
-    next()
-  })
+    socket.room = room;
+    next();
+  });
 
-  io.on("connection", (socket:customSocket) => {
-  
+  io.on("connection", (socket: customSocket) => {
     socket.join(socket.room);
 
-    socket.on("message", (data) => {
-      console.log("server side msg", data);
-      // socket.broadcast.emit("message", data);
-      io.to(socket.room).emit("message",data);
+    socket.on("message", async (data) => {
+      console.log("server side msg coming>>>", data);
+      await prisma.chats.create({
+        data: {
+          group_id: data.group_id,
+          message: data.message,
+          name: data.name,
+        },
+      });
+      socket.to(socket.room).emit("message", data);
     });
 
     socket.on("disconnect", () => {

@@ -73,7 +73,7 @@ export default function Chats({
     setMessage("");
     setMessages((prevMessages) => [...prevMessages, payload]);
   };
-
+console.log("messagessss",messages)
   return (
     <div className="flex flex-col h-[94vh] p-4">
       <div className="flex-1 overflow-y-auto flex flex-col-reverse">
@@ -88,7 +88,12 @@ export default function Chats({
                 : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
             }`}
           >
-              {message.message}
+            <div className="name">
+              <div style={{fontSize: "11px"}}>{message.name}</div>
+            <div>{message.message}</div>
+            
+            </div>
+            
             </div>
           ))}
         </div>

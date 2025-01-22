@@ -19,12 +19,11 @@ import { fetchChatMsg } from "@/fetch/chatsFetch";
   console.log("dataaa fetcheddd user",users)
 
   const chats:Array<MessageType> | []= await fetchChatMsg(params?.id);
-  console.log("chats dataaa",chats)
+  console.log("chats dataaa coming",chats)
 
   console.log("single dataaa",fetch)
   return (
     <div>
-      <h1>Hello I am chat</h1>
       <ChatBase group={group} users={users} oldMessages={chats}/>
     </div>
   );

@@ -9,6 +9,8 @@ import { setupSocket } from "./socket.js";
 import { createAdapter } from "@socket.io/redis-streams-adapter";
 import redis from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
+import { connectKafkaProducer } from "./config/kafka.config.js";
+import { consumeMessage } from "./helper.js";
 
 const PORT = process.env.PORT || 7000;
 
@@ -59,5 +61,13 @@ app.get("/", (req, res) => {
 console.log("Applying /api router");
 app.use("/api", router);
 
+
+connectKafkaProducer().catch((err)=>{
+  console.log("something wrong with kafka....")
+})
+
+consumeMessage(process.env.KAFKA_TOPIC).catch((err)=>{
+  console.log("The consumer err",err)
+})
 // Start server
 server.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));

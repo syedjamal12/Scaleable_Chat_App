@@ -1,3 +1,5 @@
+// import { PrismaClient } from "@prisma/client";
+
 import { PrismaClient } from "@prisma/client";
 
 console.log('Initializing Prisma client...');

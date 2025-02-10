@@ -15,7 +15,8 @@ export default function GroupChatCard({
   return (
     <Card>
       <CardHeader className="flex-row justify-between items-center ">
-        <CardTitle className="text-2xl">{group.title}</CardTitle>
+        <img src={group.profile_image} style={{width:"65px", height:"65px", borderRadius:"50%"}}/>
+        <CardTitle className="text-2xl" style={{fontSize:"19px"}}>{group.title}</CardTitle>
         <GroupChatCardMenu user={user} group={group} />
       </CardHeader>
       <CardContent>

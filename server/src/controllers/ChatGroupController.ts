@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../config/db.config.js";
+import cloudinary from "../config/cloud.config.js";
+import Multer from "multer"; // Correct import of the multer module and File type
 
 class ChatGroupController {
   static async store(req: Request, res: Response) {
@@ -7,11 +9,41 @@ class ChatGroupController {
       const body = req.body;
       const user = req.user;
 
+      // Access file with the correct type (Express.Multer.File)
+      const profileImage = req.file;
+console.log("imageee", profileImage);
+
+// if (!profileImage) {
+//   return res.status(400).json({ message: "Profile image is required" });
+// }
+
+// Upload file buffer to Cloudinary
+const uploadResult = await new Promise((resolve, reject) => {
+  const uploadStream = cloudinary.uploader.upload_stream(
+    {
+      folder: "chat_groups",
+      allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    },
+    (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    }
+  );
+
+  uploadStream.end(profileImage.buffer); // Send file buffer
+});
+
+console.log("uploadresulttt", uploadResult);
+
       const data = await prisma.chatGroup.create({
         data: {
           user_id: user.id,
           title: body.title,
           passcode: body.passcode,
+          profile_image: (uploadResult as any).secure_url,
         },
       });
       return res.json({

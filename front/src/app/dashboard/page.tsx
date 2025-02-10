@@ -25,7 +25,7 @@ export default async function Dashboard() {
           <CreateChat user={session?.user} />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1  lg:grid-cols-3 gap-8">
           {data?.length > 0 &&
             data.map((item, index) => (
               <GroupChatCard group={item} user={session?.user!} />

@@ -28,6 +28,7 @@ model ChatGroup {
   user_id    Int
   title      String     @db.VarChar(191)
   passcode   String     @db.VarChar(20)
+  profile_image String?    @db.VarChar(255)
   isDelete   Boolean    @default(false)
   created_at DateTime   @default(now())
   
@@ -54,6 +55,7 @@ model GroupUsers {
   group      ChatGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
   group_id   String    @db.Uuid
   name       String
+  profile_image String?    @db.VarChar(255)
   created_at DateTime  @default(now())
 
   @@map("group_users")

@@ -31,6 +31,7 @@ export default function ChatUserDialog({
     name: "",
     passcode: "",
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   useEffect(() => {
     const data = localStorage.getItem(params["id"] as string);
@@ -42,18 +43,35 @@ export default function ChatUserDialog({
     }
   }, []);
 
+  // Handle image selection
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setSelectedImage(file);
+      }
+    };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const localData = localStorage.getItem(params["id"] as string);
     if (!localData) {
       try {
+
+        const formData = new FormData();
+
+      // Append text fields
+      formData.append("name", state.name);
+      formData.append("id", params["id"] as string);
+
+      // Append image file
+      if (selectedImage) {
+        formData.append("profile_image", selectedImage);
+      }
+
         if (group.passcode != state.passcode) {
             return toast.error("Please enter correct passcode!");
           }
-        const { data } = await axios.post(CHAT_GROUP_USERS_CREATE, {
-          name: state.name,
-         id: params["id"] as string,
-        });
+        const { data } = await axios.post(CHAT_GROUP_USERS_CREATE,formData,);
         clearCache("chat");
         
         localStorage.setItem(
@@ -80,6 +98,17 @@ export default function ChatUserDialog({
           <DialogDescription>
             Add your name and passcode to join in room
           </DialogDescription>
+           {/* Preview Selected Image */}
+ {selectedImage && (
+            <div className="mt-4" style={{display:"flex", justifyContent:"center"}}>
+              <img
+                src={URL.createObjectURL(selectedImage)}
+                alt="Preview"
+                className="w-32 h-32 object-cover rounded-md border"
+                style={{borderRadius:"50%"}}
+              />
+            </div>
+          )}
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="mt-2">
@@ -94,6 +123,18 @@ export default function ChatUserDialog({
               placeholder="Enter your passcode"
               value={state.passcode}
               onChange={(e) => setState({ ...state, passcode: e.target.value })}
+            />
+          </div>
+          {/* Image Upload Field */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Upload Group Profile Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="mt-2"
             />
           </div>
           <div className="mt-2">

@@ -4,6 +4,7 @@ type GroupChatType = {
     title: string;
     passcode: string;
     created_at: string;
+    profile_image: string
   };
 
   type GroupChatUserType = {
@@ -12,6 +13,7 @@ type GroupChatType = {
     group_id: string;
     created_at: string;
     isOnline?: boolean;
+    profile_image: string
   };
 
   type MessageType = {

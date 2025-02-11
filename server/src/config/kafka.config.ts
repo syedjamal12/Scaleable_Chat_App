@@ -27,7 +27,7 @@ export const kafka = new Kafka({
   //   logLevel: logLevel.ERROR
   // })
 
-console.log("broker",process.env.KAFKA_BROKER)
+console.log("broker",process.env.KAFKA_BROKER);
 console.log("username",process.env.KAFKA_USERNAME)
 console.log("pass",process.env.KAFKA_PASSWORD)
 

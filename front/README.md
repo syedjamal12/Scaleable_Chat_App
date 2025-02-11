@@ -14,7 +14,11 @@ pnpm dev
 bun dev
 ```
 
+<<<<<<< HEAD
 Open [http://  localhost:3000](http://  localhost:3000) with your browser to see the result.
+=======
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+>>>>>>> 515eb39869041276951e74cc044affb83f858cc1
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

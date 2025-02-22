@@ -19,6 +19,9 @@ export const CHAT_GROUP_USERS_CREATE = API_URL + "/chat-group-user-create"
 
 export const CHAT_MSG = API_URL + "/chat"
 
+export const UPLOAD_FILE = API_URL + "/upload"
+
+
 
 
 console.log("LOGIN_URL:", LOGIN_URL);  // Check if it's correct

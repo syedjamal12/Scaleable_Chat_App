@@ -5,6 +5,7 @@ import ChatGroupController from "../controllers/ChatGroupController.js";
 import ChatGroupUserController from "../controllers/ChatGroupUserController.js";
 import ChatsController from "../controllers/ChatsController.js";
 import upload from "../multer.js";
+import { uploadFile } from "../controllers/UploadFile.js";
 
 const router = Router();
 
@@ -34,8 +35,9 @@ router.get("/chat-group-user", ChatGroupUserController.index);
 
 // chat msg
 router.get("/chat/:groupId", ChatsController.index);
-router.post("/chat/create", ChatsController.store);
+router.post("/chat/create",upload.single("image"), ChatsController.store);
 
+router.post("/upload", upload.single("file"), uploadFile);
 
 
 export default router;

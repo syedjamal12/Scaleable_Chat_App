@@ -13,7 +13,7 @@ type GroupChatType = {
     group_id: string;
     created_at: string;
     isOnline?: boolean;
-    profile_image: string
+    profile_image?: string
   };
 
   type MessageType = {
@@ -21,6 +21,9 @@ type GroupChatType = {
     group_id:string,
     name:string,
     message:string,
+    media_url?:string | undefined,
+    media_type?:string | undefined,
     created_at:string,
+    profile_image?:string
 
   }

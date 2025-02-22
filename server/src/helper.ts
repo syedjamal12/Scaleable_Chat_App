@@ -21,6 +21,9 @@ export const consumeMessage = async (topic: string) => {
             group_id: data.group_id,
                 message: data.message,
                 name: data.name,
+                media_url : data.media_url,
+                media_type: data.media_type,
+                profile_image: data.profile_image
           }
       })
     },

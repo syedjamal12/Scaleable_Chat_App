@@ -13,6 +13,8 @@ import { any } from "zod";
 import { UPLOAD_FILE } from "@/lib/apiEndPoints";
 import axios from "axios";
 import ClockLoader from "react-spinners/ClockLoader";
+import { FaMicrophone, FaStop } from "react-icons/fa";
+
 export default function Chats({
   group,
   oldMessages,
@@ -27,6 +29,40 @@ export default function Chats({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loader, setLoader] = useState(false);
+
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream);
+    mediaRecorderRef.current = mediaRecorder;
+    const chunks: BlobPart[] = [];
+
+    mediaRecorder.ondataavailable = (event) => {
+      chunks.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(chunks, { type: "audio/webm" });
+      setAudioBlob(audioBlob);
+    };
+
+    mediaRecorder.start();
+    setRecording(true);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+
   console.log("oldMessages",oldMessages)
   console.log("chatuserrrrr",chatUser)
   // Handle file selection (image/video)
@@ -92,23 +128,30 @@ export default function Chats({
       profile_image: chatUser?.profile_image
     };
 
-    if (selectedFile) {
+    if (selectedFile || audioBlob) {
       setLoader(true);
-      formData.append("file", selectedFile);
-      // Simulate an API call to upload the file
+      if (selectedFile) {
+        console.log("selected fileee",selectedFile)
+        formData.append("file", selectedFile, selectedFile.name);
+      } else if (audioBlob) {
+        formData.append("file", audioBlob, "voice_message.webm");
+      }
+            
       try {
         const { data } = await axios.post(UPLOAD_FILE, formData);
-
-        // const data = await response.json();
         if (data.success) {
           payload.media_url = data.fileUrl;
           payload.media_type = data.fileType;
           setLoader(false);
+          setSelectedFile(null)
+          setAudioBlob(null)
         }
       } catch (error) {
         console.error("File upload failed", error);
+        setLoader(false);
+        setSelectedFile(null)
+          setAudioBlob(null)
       }
-      setLoader(false);
     }
 
     socket.emit("message", payload);
@@ -120,110 +163,70 @@ export default function Chats({
   console.log("messagessss", messages);
   return (
     <div className="flex flex-col h-[94vh] p-4">
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse">
-        <div ref={messagesEndRef} />
-        <div className="flex flex-col gap-2">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`max-w-sm rounded-lg p-2 ${
-                message.name === chatUser?.name
-                  ? "bg-gradient-to-r from-blue-400 to-blue-600 text-white self-end"
-                  : "bg-gradient-to-r from-gray-200 to-gray-300 text-black self-start"
-              }`}
-            >
-              <div className="name">
-                <div style={{display:"flex", flexDirection:"row",alignItems:"center", gap:"5px"}}>
-                <img src={message?.profile_image} style={{width:"30px", height:"30px", borderRadius:"50%"}}/>
-                <div style={{ fontSize: "11px" }}>{message.name}</div>
-                </div>
-             
-                <div>{message.message}</div>
-                {message.media_url && (
-                  <div className="mt-2">
-                    {message.media_type === "image" ? (
-                      <img
-                        src={message.media_url}
-                        alt="Sent media"
-                        className="w-32 h-32 object-cover rounded-md border"
-                      />
-                    ) : (
-                      <video controls className="w-32 h-32 rounded-md border">
-                        <source src={message.media_url} type="video/mp4" />
-                      </video>
-                    )}
-                  </div>
+    <div className="flex-1 overflow-y-auto flex flex-col-reverse">
+      <div ref={messagesEndRef} />
+      <div className="flex flex-col gap-2">
+        {messages.map((message) => (
+          <div key={message.id} className={`max-w-sm rounded-lg p-2 ${message.name === chatUser?.name ? "bg-blue-600 text-white self-end" : "bg-gray-300 text-black self-start"}`}>
+            <div className="name flex items-center gap-2">
+              <img src={message.profile_image} className="w-8 h-8 rounded-full" />
+              <div className="text-sm">{message.name}</div>
+            </div>
+            <div>{message.message}</div>
+            {message.media_url && (
+              <div className="mt-2">
+                {message.media_type === "image" ? (
+                  <img src={message.media_url} alt="Sent media" className="w-32 h-32 object-cover rounded-md border" />
+                ) : message.media_type === "video" ? (
+                  <video controls className="w-32 h-32 rounded-md border">
+                    <source src={message.media_url} type="video/mp4" />
+                  </video>
+                ) : (
+                  <audio controls className="w-250px mt-2">
+                    <source src={message.media_url} type="audio/webm" />
+                  </audio>
                 )}
               </div>
-            </div>
-          ))}
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {selectedFile || audioBlob ? (
+      <div className="mt-4 flex flex-col items-center relative p-4 rounded-md bg-gray-200">
+        <button onClick={() => { setSelectedFile(null); setAudioBlob(null); }} className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full shadow-md">✖️</button>
+        <div className="mt-2">
+          {selectedFile ? (
+            selectedFile.type.startsWith("image") ? (
+              <img src={URL.createObjectURL(selectedFile)} alt="Preview" className="w-32 h-32 object-cover rounded-md border" />
+            ) : (
+              <video controls className="w-32 h-32 rounded-md border">
+                <source src={URL.createObjectURL(selectedFile)} type={selectedFile.type} />
+              </video>
+            )
+          ) : ( audioBlob && (
+            <audio controls className="w-250px">
+              <source src={URL.createObjectURL(audioBlob)} type="audio/webm" />
+            </audio>)
+          )
+          }
+          {loader && <ClockLoader size={25} />}
         </div>
       </div>
+    ) : null}
 
-      {/* Preview Selected File */}
-      {selectedFile && (
-  <div className="mt-4 flex flex-col items-center relative p-4 rounded-md" style={{ backgroundColor: "#dbd5d5" }}>
-    {/* Cross Mark for Removing File */}
-    {
-      !loader && <button
-      onClick={() => setSelectedFile(null)}
-      className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 flex items-center justify-center rounded-full shadow-md"
-    >
-      ✖️
-    </button>
-    }
-    
-
-    {/* File Preview */}
-    <div style={{ display: "flex", flexDirection: "row", marginTop: "12px" }}>
-      {selectedFile.type.startsWith("image") ? (
-        <img
-          src={URL.createObjectURL(selectedFile)}
-          alt="Preview"
-          className="w-32 h-32 object-cover rounded-md border"
-        />
-      ) : (
-        <video controls className="w-32 h-32 rounded-md border">
-          <source src={URL.createObjectURL(selectedFile)} type={selectedFile.type} />
-        </video>
-      )}
-
-      {/* Loader */}
-      {loader && (
-        <div style={{ marginTop: "102px" }}>
-          <ClockLoader size={25} />
-        </div>
-      )}
-    </div>
+    <form onSubmit={handleSubmit} className="mt-2 flex items-center">
+      <label className="cursor-pointer">
+        <CiImageOn className="w-8 h-8" />
+        <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
+      </label>
+      <input type="text" placeholder="Type a message..." value={message} className="flex-1 p-2 border rounded-lg" onChange={(e) => setMessage(e.target.value)} />
+      <button type="button" onClick={recording ? stopRecording : startRecording} className="ml-2 p-2 rounded-full bg-red-500 text-white">
+        {recording ? <FaStop /> : <FaMicrophone />}
+      </button>
+      <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded-lg">Send</button>
+    </form>
   </div>
-)}
-
-
-      {/* Input Form */}
-      <form onSubmit={handleSubmit} className="mt-2 flex items-center">
-        <label style={{ cursor: "pointer" }}>
-          <CiImageOn style={{ width: "50px", height: "39px" }} />
-          <input
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-        </label>
-        <input
-          type="text"
-          placeholder="Type a message..."
-          value={message}
-          className="flex-1 p-2 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button
-          type="submit"
-          className="ml-2 p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-        >
-          Send
-        </button>
-      </form>
-    </div>
   );
 }

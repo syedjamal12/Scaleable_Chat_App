@@ -29,7 +29,7 @@ class AuthController{
         { id: user.id, name: user.name, email: user.email },
         process.env.JWT_SECRET || "default_secret",
         { expiresIn: "365d" }
-      );
+      )
   
       return res.json({
         message: "Logged in successfully",

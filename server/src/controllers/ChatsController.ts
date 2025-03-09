@@ -59,6 +59,47 @@ class ChatsController {
             });
           }
      }
+
+     static async update(req: Request, res: Response) {
+      try {
+        const { id } = req.params;
+        const { message } = req.body;
+        console.log("updated msggg",message)
+        console.log("updated iddd",id)
+  
+        const data = await prisma.chats.update({
+          data: {
+            message,  // Use only the updated message
+          },
+          where: {
+            id: id,
+          },
+        });
+        return res.json({ message: "message updated Successfully", data: data });
+      } catch (error) {
+        res.status(500).json({
+          message: "something error",
+        });
+      }
+    }
+
+    static async delete(req: Request, res: Response) {
+      try {
+        const { id } = req.params;
+  
+        const data = await prisma.chats.delete({
+          where: {
+            id: id,
+          },
+        });
+        return res.json({ message: "message deleted Successfully", data: data });
+      } catch (error) {
+        console.log(error);
+        res.status(500).json({
+          message: "something error",
+        });
+      }
+    }
 }
 
 export default ChatsController

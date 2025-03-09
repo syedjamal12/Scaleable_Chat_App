@@ -21,20 +21,31 @@ export function setupSocket(io: Server) {
     socket.join(socket.room);
 
     socket.on("message", async (data) => {
-      console.log("server side msg coming>>>", data);
-      // await prisma.chats.create({
-      //   data: {
-      //     group_id: data.group_id,
-      //     message: data.message,
-      //     name: data.name,
-      //   },
-      // });
-      await produceMessage(process.env.KAFKA_TOPIC, data)
+      console.log("📩 server side msg coming>>>", data);
+      await produceMessage(process.env.KAFKA_TOPIC, data);
       socket.to(socket.room).emit("message", data);
     });
 
+    // ✅ Handle Edit Message Event
+    socket.on("editMessage", async (updatedMessage) => {
+      console.log("✏️ Edit message received on server:", updatedMessage);
+
+      // Broadcast edited message to all users in the room (except sender)
+      io.to(socket.room).emit("editMessage", updatedMessage);
+    });
+
+
+    socket.on("deleteMessage", async (messageId) => {
+      console.log("🗑️ Delete message received on server:", messageId);
+  
+      // ✅ Emit the delete event to all users, including the sender
+      io.to(socket.room).emit("deleteMessage", messageId);
+  });
+  
+
     socket.on("disconnect", () => {
-      console.log("user disconnected", socket.id);
+      console.log("❌ user disconnected", socket.id);
     });
   });
 }
+

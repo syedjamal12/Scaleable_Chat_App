@@ -16,6 +16,9 @@ export const CHAT_GROUP_USERS = API_URL + "/chat-group-user";
 
 export const CHAT_GROUP_USERS_CREATE = API_URL + "/chat-group-user-create"
 
+export const MSG_UPDATE = API_URL + "/chat/update";
+
+export const MSG_DELETE = API_URL + "/chat/delete";
 
 export const CHAT_MSG = API_URL + "/chat"
 

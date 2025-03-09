@@ -1,5 +1,6 @@
 import React, {
   Fragment,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -10,10 +11,22 @@ import { getSocket } from "@/lib/socket.config";
 import { v4 as uuidv4 } from "uuid";
 import { CiImageOn } from "react-icons/ci";
 import { any } from "zod";
-import { UPLOAD_FILE } from "@/lib/apiEndPoints";
+import { MSG_DELETE, UPLOAD_FILE } from "@/lib/apiEndPoints";
 import axios from "axios";
 import ClockLoader from "react-spinners/ClockLoader";
 import { FaMicrophone, FaStop } from "react-icons/fa";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { DotsVerticalIcon } from "@radix-ui/react-icons";
+import EditMsgChat from "../msgChat/EditMsgChat";
+import DeleteMsgChat from "../msgChat/DeleteMsgChat";
+
+const socket = getSocket();
 
 export default function Chats({
   group,
@@ -32,9 +45,26 @@ export default function Chats({
 
   const [recording, setRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [editDialoag, setEditDialog] = useState(false);
+  const [deleteDialoag, setDeleteDialog] = useState(false);
 
+  const[EditMsg,setEditMsg]=useState({})
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-
+  useEffect(() => {
+    socket.emit("joinRoom", group.id);
+    console.log("Joining room:", group.id);
+  }, [group.id]);
+  
+  useEffect(() => {
+    socket.on("editMessage", (updatedMessage) => {
+      console.log("✅ Edit message received:", updatedMessage);
+    });
+  
+    return () => {
+      socket.off("editMessage");
+    };
+  }, []);
+  
 
   const startRecording = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -61,6 +91,7 @@ export default function Chats({
       setRecording(false);
     }
   };
+  console.log("edit msg id",group.id)
 
 
   console.log("oldMessages",oldMessages)
@@ -86,32 +117,85 @@ export default function Chats({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const socket = useMemo(() => {
-    const socketInstance = getSocket();
-    socketInstance.auth = {
-      room: group.id,
-    };
-    return socketInstance.connect();
-  }, [group.id]);
-
-  const msgUpdate = useCallback((data: MessageType) => {
-    setMessages((prevMessages) => {
-      if (prevMessages.some((msg) => msg.id === data.id)) {
-        return prevMessages; // Skip duplicate messages
-      }
-      return [...prevMessages, data];
-    });
-    scrollToBottom();
-  }, []);
-
   useEffect(() => {
-    socket.on("message", msgUpdate);
+    socket.auth = { room: group.id };
+    socket.connect();
+    socket.emit("joinRoom", group.id);
+    console.log("Joining room:", group.id);
 
     return () => {
-      socket.off("message");
-      socket.close();
+      socket.emit("leaveRoom", group.id);
+      socket.off("editMessage"); // Cleanup listener
     };
-  }, [socket, msgUpdate]);
+  }, [group.id]);
+  
+
+  useEffect(() => {
+    const handleEditMessage = (updatedMessage: any) => {
+      console.log("msg editing");
+      console.log("Edit message event received:", updatedMessage);
+  
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.id === updatedMessage.id ? { ...msg, message: updatedMessage.message } : msg
+        )
+      );
+    };
+  
+    const handleDeleteMessage = (deletedMessage: any) => {
+      console.log("msg deleting");
+      console.log("Delete message event received:", deletedMessage);
+  
+      setMessages((prevMessages) =>
+        prevMessages.filter((msg) => msg.id !== deletedMessage.id) // Remove message by ID
+      );
+    };
+  
+    socket.on("editMessage", handleEditMessage);
+    socket.on("deleteMessage", handleDeleteMessage);
+  
+    return () => {
+      socket.off("editMessage", handleEditMessage);
+      socket.off("deleteMessage", handleDeleteMessage);
+    };
+  }, []);
+  
+  
+  
+  
+  console.log("edit messagessssss",messages)
+  
+
+
+  const msgUpdate = useCallback((data: MessageType) => {
+    console.log("msg updating")
+    setMessages((prevMessages) => {
+      const messageExists = prevMessages.some((msg) => msg.id === data.id);
+      
+      if (messageExists) {
+        // ✅ Do nothing if the message already exists (prevents overwriting edited messages)
+        return prevMessages;
+      }
+  
+      return [...prevMessages, data]; // ✅ Only add new messages
+    });
+  
+    scrollToBottom();
+  }, []);
+  
+  
+  
+console.log("without edit messagessssss",messages)
+
+
+useEffect(() => {
+  socket.on("message", msgUpdate);
+  
+  return () => {
+    socket.off("message", msgUpdate); // ✅ Only remove message listener
+  };
+}, [msgUpdate]);
+
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -158,7 +242,41 @@ export default function Chats({
     setMessage("");
     setSelectedFile(null);
     setMessages((prevMessages) => [...prevMessages, payload]);
+    console.log("submit data")
   };
+ 
+function ForEdit(message:any){
+  setEditMsg(message)
+  setEditDialog(true)
+}
+    const[loading,setLoading]=useState(false)
+
+async function forDelete (message:any){
+  console.log("fordelett")
+  setEditMsg(message)
+  setDeleteDialog(true)
+
+  // Prevent form submission refresh
+  
+      // try {
+      //     setLoading(true);
+      //     const { data } = await axios.delete(`${MSG_DELETE}/${message.id}`);
+  
+      //     if (data?.message) {
+             
+  
+      //       setMessages((prevMessages) =>
+      //         prevMessages.filter((msg) => msg.id !== message.id) // Remove message by ID
+      //       );
+      //     }
+  
+      // } catch (error) {
+      //     console.log("Something went wrong while deleting:", error);
+      // } finally {
+      //     setLoading(false);  // Ensure loading state is updated
+      // }
+}
+console.log("editmsggggg",EditMsg)
 
   console.log("messagessss", messages);
   return (
@@ -168,9 +286,29 @@ export default function Chats({
       <div className="flex flex-col gap-2">
         {messages.map((message) => (
           <div key={message.id} className={`max-w-sm rounded-lg p-2 ${message.name === chatUser?.name ? "bg-blue-600 text-white self-end" : "bg-gray-300 text-black self-start"}`}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px"}}>
             <div className="name flex items-center gap-2">
               <img src={message.profile_image} className="w-8 h-8 rounded-full" />
               <div className="text-sm">{message.name}</div>
+            </div>
+            {
+              message.name === chatUser?.name && <div>  <DropdownMenu>
+              <DropdownMenuTrigger>
+                <DotsVerticalIcon className="h-3 w-3" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+               
+                <DropdownMenuItem onClick={()=>ForEdit(message)}>
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>forDelete(message)}>
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu> </div>
+            }
+            
+
             </div>
             <div>{message.message}</div>
             {message.media_url && (
@@ -192,6 +330,32 @@ export default function Chats({
         ))}
       </div>
     </div>
+
+{editDialoag && (
+        <Suspense fallback={<p>Loading...</p>}>
+          <EditMsgChat
+            open={editDialoag}
+            setOpen={setEditDialog}
+           EditMessage={EditMsg}
+           group={group}
+          />
+        </Suspense>
+      )}
+
+      {
+        deleteDialoag && (
+          <Suspense fallback={<p>Loading...</p>}>
+          <DeleteMsgChat
+            open={deleteDialoag}
+            setOpen={setDeleteDialog}
+           EditMessage={EditMsg}
+           group={group}
+           setMessages={setMessages}
+
+          />
+        </Suspense>
+        )
+      }
 
     {selectedFile || audioBlob ? (
       <div className="mt-4 flex flex-col items-center relative p-4 rounded-md bg-gray-200">

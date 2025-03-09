@@ -36,6 +36,9 @@ router.get("/chat-group-user", ChatGroupUserController.index);
 // chat msg
 router.get("/chat/:groupId", ChatsController.index);
 router.post("/chat/create",upload.single("image"), ChatsController.store);
+router.put("/chat/update/:id", ChatsController.update);
+router.delete("/chat/delete/:id", ChatsController.delete);
+
 
 router.post("/upload", upload.single("file"), uploadFile);
 

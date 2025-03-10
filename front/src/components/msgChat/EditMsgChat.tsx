@@ -22,18 +22,21 @@ import { clearCache } from "@/actions/common";
 import { GROUP_UPDATE, MSG_UPDATE } from "@/lib/apiEndPoints";
 import { getSocket } from "@/lib/socket.config";
 import { useMemo } from "react";
-const socket = getSocket();
+
 export default function EditMsgChat({
   EditMessage,
   open,
   setOpen,
   group,
+  chatUser
 }: {
   EditMessage: any;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   group: GroupChatType;
+  chatUser?: GroupChatUserType;
 }) {
+  const socket = getSocket(String(chatUser?.id));
   console.log("msgchatttttt", EditMessage);
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState(EditMessage.message); // Single state for title

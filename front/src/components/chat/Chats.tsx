@@ -10,7 +10,7 @@ import React, {
 import { getSocket } from "@/lib/socket.config";
 import { v4 as uuidv4 } from "uuid";
 import { CiImageOn } from "react-icons/ci";
-import { any } from "zod";
+import { any, string } from "zod";
 import { MSG_DELETE, UPLOAD_FILE } from "@/lib/apiEndPoints";
 import axios from "axios";
 import ClockLoader from "react-spinners/ClockLoader";
@@ -26,7 +26,7 @@ import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import EditMsgChat from "../msgChat/EditMsgChat";
 import DeleteMsgChat from "../msgChat/DeleteMsgChat";
 
-const socket = getSocket();
+
 
 export default function Chats({
   group,
@@ -37,6 +37,8 @@ export default function Chats({
   oldMessages: Array<MessageType> | [];
   chatUser?: GroupChatUserType;
 }) {
+  const socket = getSocket(String(chatUser?.id));
+
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<MessageType>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -118,7 +120,8 @@ export default function Chats({
   };
 
   useEffect(() => {
-    socket.auth = { room: group.id };
+   // ✅ Send both `room` and `userId`
+   socket.auth = { room: group.id, userId: chatUser?.id };
     socket.connect();
     socket.emit("joinRoom", group.id);
     console.log("Joining room:", group.id);
@@ -255,26 +258,6 @@ async function forDelete (message:any){
   console.log("fordelett")
   setEditMsg(message)
   setDeleteDialog(true)
-
-  // Prevent form submission refresh
-  
-      // try {
-      //     setLoading(true);
-      //     const { data } = await axios.delete(`${MSG_DELETE}/${message.id}`);
-  
-      //     if (data?.message) {
-             
-  
-      //       setMessages((prevMessages) =>
-      //         prevMessages.filter((msg) => msg.id !== message.id) // Remove message by ID
-      //       );
-      //     }
-  
-      // } catch (error) {
-      //     console.log("Something went wrong while deleting:", error);
-      // } finally {
-      //     setLoading(false);  // Ensure loading state is updated
-      // }
 }
 console.log("editmsggggg",EditMsg)
 
@@ -338,6 +321,7 @@ console.log("editmsggggg",EditMsg)
             setOpen={setEditDialog}
            EditMessage={EditMsg}
            group={group}
+           chatUser={chatUser}
           />
         </Suspense>
       )}
@@ -351,7 +335,7 @@ console.log("editmsggggg",EditMsg)
            EditMessage={EditMsg}
            group={group}
            setMessages={setMessages}
-
+           chatUser={chatUser}
           />
         </Suspense>
         )

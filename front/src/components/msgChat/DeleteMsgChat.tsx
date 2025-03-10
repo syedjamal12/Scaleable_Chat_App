@@ -14,21 +14,24 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { group } from "console";
 import { getSocket } from "@/lib/socket.config";
-const socket = getSocket();
+
 
 const DeleteMsgChat = ({
   open,
   setOpen,
   EditMessage,
   group,
-  setMessages
+  setMessages,
+  chatUser
 }: {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   EditMessage: any;
   group: GroupChatType;
-  setMessages:any
+  setMessages:any;
+  chatUser?: GroupChatUserType;
 }) => {
+  const socket = getSocket(String(chatUser?.id));
     useEffect(() => {
       socket.auth = { room: group.id };
       socket.connect();

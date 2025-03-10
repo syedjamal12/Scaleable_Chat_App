@@ -32,7 +32,7 @@ const ChatBase = ({
   const[open,setOpen]=useState(true)
   return (
     <div className="flex w-100%">
-      <ChatSidebar users={users}/>
+      <ChatSidebar users={users} group={group}/>
       <div className="w-full  bg-gradient-to-b from-gray-50 to-white">
       {
         open ? <ChatUserDialog open={open} setOpen={setOpen} group={group}/> : <ChatNav chatGroup={group} users={users}/>

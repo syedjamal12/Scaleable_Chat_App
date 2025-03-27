@@ -16,6 +16,19 @@ export const consumeMessage = async (topic: string) => {
     eachMessage: async ({ topic, partition, message }) => {
       const data = JSON.parse(message.value.toString());
       console.log("consumer data", data);
+      console.log("Counter Reply Type:", typeof data.counter_reply);
+console.log("Counter Reply Value:", data.counter_reply);
+// let formattedCounterReply = null
+// try{
+//   formattedCounterReply =
+//   data.counter_reply ? JSON.parse(data.counter_reply) : null;
+// }catch(e){
+// console.log("erorrrrr",e)
+
+// }
+// console.log("coter reply backend",formattedCounterReply)
+
+
       await prisma.chats.create({
           data:{
             group_id: data.group_id,
@@ -23,9 +36,12 @@ export const consumeMessage = async (topic: string) => {
                 name: data.name,
                 media_url : data.media_url,
                 media_type: data.media_type,
-                profile_image: data.profile_image
+                profile_image: data.profile_image,
+                counter_reply:data?.counter_reply || null
           }
-      })
+      }).catch(error => {
+        console.error("Prisma Error:", error);
+      });
     },
   });
 };

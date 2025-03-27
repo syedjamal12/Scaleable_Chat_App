@@ -40,16 +40,23 @@ class ChatsController {
             
               uploadStream.end(profileImage.buffer); // Send file buffer
             });
-            const data = await prisma.chats.create({
-              data: {
-                group_id: body.id,
-                name: body.name,
-                message: body.message,
-                media_url:body.media_url,
-                media_type: body.media_type,
-                profile_image:body.profile_image
-              },
-            });
+            const formattedCounterReply =
+  body.counter_reply ? JSON.parse(body.counter_reply) : null;
+console.log("coter reply backend controller",formattedCounterReply)
+  const data = await prisma.chats.create({
+    data: {
+      group_id: body.group_id,
+      name: body.name,
+      message: body.message,
+      media_url: body.media_url,
+      media_type: body.media_type,
+      profile_image: body.profile_image,
+      counter_reply: body?.counter_reply || null
+    },
+  }).catch(error => {
+    console.error("Prisma Error:", error);
+  });
+  
             return res.json({ message: "msg create Successfully", data: data });
           } catch (error) {
             console.error("Error adding group user:", error); // Logs the exact error

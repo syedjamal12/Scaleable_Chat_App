@@ -44,6 +44,7 @@ model Chats {
   media_url  String?   // Stores image or video URL
   media_type String?
   profile_image String?    @db.VarChar(255)
+  counter_reply Json?
   name       String
   created_at DateTime  @default(now())
 

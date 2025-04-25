@@ -214,6 +214,17 @@ if (lastMessage?.counter_reply) {
   
 console.log("without edit messagessssss",messages)
 
+useEffect(() => {
+  socket.on("message", (data) => {
+    console.log("New message received:", data);
+    // Add logic to render message in group chat UI
+  });
+  
+  return () => {
+    socket.off("message", msgUpdate); // ✅ Only remove message listener
+  };
+}, [msgUpdate]);
+
 
 useEffect(() => {
   socket.on("message", msgUpdate);

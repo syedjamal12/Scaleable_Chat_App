@@ -5,8 +5,9 @@ import Multer from "multer";
 
 class ChatsController {
      static async index(req:Request,res:Response){
+     
        const {groupId} = req.params
-
+       console.log("no msg")
        const chats = await prisma.chats.findMany({
         where:{
             group_id : groupId

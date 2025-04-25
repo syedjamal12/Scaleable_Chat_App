@@ -2,6 +2,7 @@ import { error } from "console";
 import { Server, Socket } from "socket.io";
 import prisma from "./config/db.config.js";
 import { produceMessage } from "./helper.js";
+import { generateResult } from "./config/ai.config.js";
 
 interface customSocket extends Socket {
   room?: string;
@@ -39,21 +40,43 @@ io.to(socket.room).emit("updateUserStatus", {
   status: "online",
 });
 
-    socket.on("message", async (data) => {
-      console.log("📩 server side msg coming>>>", data);
-      await produceMessage(process.env.KAFKA_TOPIC, data);
-      socket.to(socket.room).emit("message", data);
-    });
+socket.on("message", async (data) => {
+  if (!socket.room) {
+    console.warn("⚠️ Message received before joining a room. Skipping...");
+    return;
+  }
 
-    socket.on("callUser", ({ roomId, from, signalData, isVideo }) => {
-      console.log("🔔 Call initiated in room:", roomId);
-      
-      socket.to(roomId).emit("incomingCall", { from, signal: signalData, isVideo });
-    });
+  console.log("📩 Server-side msg coming >>>", data);
 
-    socket.on("answerCall", ({ roomId, signal, to }) => {
-      io.to(roomId).emit("callAccepted", { signal, to });
-    });
+  // Always send user's message to others in the room
+  io.in(socket.room).emit("message", data);
+  await produceMessage(process.env.KAFKA_TOPIC, data);
+
+  const AiMessage = data.message.includes('@ai');
+
+  if (AiMessage) {
+    const prompt = data.message.replace('@ai', '').trim();
+    const result = await generateResult(prompt);
+
+    const AIData = {
+      ...data,
+     id: `ai-${Date.now()}-${Math.floor(Math.random() * 1000000)}`,
+      name: 'AI',
+      message: result,
+      profile_image: 'https://res.cloudinary.com/dx3mtupmd/image/upload/v1745479652/chat_groups/iaocaqv2okjkh1qtkfor.jpg',
+      isAI: true,
+    };
+
+    console.log("🤖 AI reading msg for room:", socket.room);
+    console.log("🧩 Rooms socket is in:", Array.from(socket.rooms));
+
+    setTimeout(() => {
+      io.in(socket.room).emit("message", AIData);
+    }, 500); // try 300-500ms delay
+    
+    await produceMessage(process.env.KAFKA_TOPIC, AIData);
+  }
+});
 
     // ✅ Handle Edit Message Event
     socket.on("editMessage", async (updatedMessage) => {

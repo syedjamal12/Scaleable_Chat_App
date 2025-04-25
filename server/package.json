@@ -4,10 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "kill-port 8000 && node dist/index.js",
     "watch": "tsc -w",
     "server": "nodemon dist/index.js",
-    "dev": "concurrently \"npm run watch\" \"npm run server\""
+    "dev": "tsc-watch --onSuccess \"npm start\""
   },
   "keywords": [],
   "author": "",
@@ -20,8 +20,10 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^20.14.11",
     "concurrently": "^8.2.2",
+    "kill-port": "^2.0.1",
     "nodemon": "^3.1.4",
     "prisma": "^6.3.1",
+    "tsc-watch": "^6.2.1",
     "typescript": "^5.5.3"
   },
   "dependencies": {

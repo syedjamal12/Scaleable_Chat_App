@@ -37,16 +37,21 @@ model ChatGroup {
 }
 
 model Chats {
-    id         String     @id @default(uuid()) @db.Uuid
-  group       ChatGroup       @relation(fields: [group_id], references: [id], onDelete: Cascade)
-group_id     String   @db.Uuid
-message   String?
-name   String
-  created_at DateTime   @default(now())
+  id         String    @id @default(uuid()) @db.Uuid
+  group      ChatGroup @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group_id   String    @db.Uuid
+  message    String?
+  media_url  String?   // Stores image or video URL
+  media_type String?
+  profile_image String?    @db.VarChar(255)
+  counter_reply Json?
+  name       String
+  created_at DateTime  @default(now())
+
   @@index([created_at])
   @@map("chats")
-
 }
+
 
 
 

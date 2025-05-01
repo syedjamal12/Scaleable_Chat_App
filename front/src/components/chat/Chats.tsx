@@ -1,30 +1,28 @@
-import React, {
-  Fragment,
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { getSocket } from "@/lib/socket.config";
-import { v4 as uuidv4 } from "uuid";
-import { CiImageOn } from "react-icons/ci";
-import { any, string } from "zod";
-import { MSG_DELETE, UPLOAD_FILE } from "@/lib/apiEndPoints";
-import axios from "axios";
-import ClockLoader from "react-spinners/ClockLoader";
-import { FaMicrophone, FaStop } from "react-icons/fa";
-import { BsThreeDotsVertical } from "react-icons/bs";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UPLOAD_FILE } from "@/lib/apiEndPoints";
+import { getSocket } from "@/lib/socket.config";
 import { DotsVerticalIcon } from "@radix-ui/react-icons";
-import EditMsgChat from "../msgChat/EditMsgChat";
+import { FiSend } from "react-icons/fi";
+
+import axios from "axios";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from "react";
+import { CiImageOn } from "react-icons/ci";
+import { FaMicrophone, FaStop } from "react-icons/fa";
+import ClockLoader from "react-spinners/ClockLoader";
+import { v4 as uuidv4 } from "uuid";
 import DeleteMsgChat from "../msgChat/DeleteMsgChat";
+import EditMsgChat from "../msgChat/EditMsgChat";
 
 import { BiShare } from "react-icons/bi";
 import { TbShare3 } from "react-icons/tb";
@@ -237,6 +235,11 @@ useEffect(() => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    if(message===""){
+      return 
+    }
+
     const formData = new FormData();
 
     const payload: MessageType = {
@@ -309,14 +312,39 @@ if(Couter){
 }
 console.log("editmsggggg",EditMsg)
 
+function formatDate(dateString : string) {
+  const date = new Date(dateString);
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based
+  const hours = date.getHours();
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHour = String(hours % 12 || 12).padStart(2, '0');
+
+  return `${day}/${month} - ${formattedHour}:${minutes} ${ampm}`;
+}
+
+
   console.log("messagessss", messages);
   return (
-    <div className="flex flex-col h-[94vh] p-4">
+<div className="relative h-[94vh]">
+  {/* Background image */}
+  <div
+    className="absolute inset-0 bg-cover bg-center z-0"
+    style={{
+      backgroundImage:
+        "url('/images/social-media-sketch-vector-seamless-260nw-1660950727.jpg')",
+    }}
+  ></div>
+    
+    <div className="flex flex-col h-full p-4 relative z-10">
     <div className="flex-1 overflow-y-auto flex flex-col-reverse">
       <div ref={messagesEndRef} />
       <div className="flex flex-col gap-2">
         {messages.map((message,index) => (
-          <div style={{display:"flex",flexDirection:"row"}} className={`${message.name === chatUser?.name ? " self-end" : " self-start"}`}>
+          <div key={message.id || index} style={{display:"flex",flexDirection:"row"}} className={`${message.name === chatUser?.name ? " self-end" : " self-start"}`}>
             {
                 message.name === chatUser?.name && (
                   <div onClick={()=>forCounter(message)}>
@@ -324,7 +352,7 @@ console.log("editmsggggg",EditMsg)
                   </div>
                 )
               }
-          <div key={message.id} className={`max-w-sm rounded-lg p-2 ${message.name === chatUser?.name ? "bg-blue-600 text-white self-end" : "bg-gray-300 text-black self-start"}`}>
+          <div key={message.id} className={`max-w-sm rounded-lg p-2 w-100% ${message.name === chatUser?.name ? "bg-blue-600 text-white self-end" : "bg-gray-300 text-black self-start"}`}>
           {
             message?.counter_reply ? (<><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px"}}>
               
@@ -353,7 +381,7 @@ console.log("editmsggggg",EditMsg)
               </div>
              
               {
-                <div style={{backgroundColor:"#535050",padding:"5px",borderRadius:"9px",borderLeft:"4px solid red",marginTop:"5px",width:"109%",marginLeft:"-5px"}}>
+                <div style={{backgroundColor:"#535050",padding:"5px",borderRadius:"9px",borderLeft:"4px solid red",marginTop:"5px",width:"100%",marginLeft:"10px"}}>
                 <div className="name flex items-center gap-2">
                 <img src={CounterMsg(message?.counter_reply).profile_image} className="rounded-full" style={{width:"25px",height:"25px"}} />
                 <div className="text-sm" style={{fontSize:"12px"}}>{CounterMsg(message?.counter_reply).name}</div>
@@ -390,6 +418,7 @@ console.log("editmsggggg",EditMsg)
               }
               
                <div>{message.message}</div>
+               <div className={`${message.name === chatUser?.name ? "text-white" : "text-white"}}`} style={{display:"flex",justifyContent:"flex-end",fontSize:"10px"}} >{formatDate(message.created_at)}</div>
               </>) : (<><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:"10px"}}>
               
                 <div className="name flex items-center gap-2">
@@ -431,7 +460,13 @@ console.log("editmsggggg",EditMsg)
                       </audio>
                     )}
                   </div>
-                )}</>)
+                )}
+                                <div className={`${message.name === chatUser?.name ? "text-white" : "text-white"}}`} style={{display:"flex",justifyContent:"flex-end",fontSize:"10px"}}>{formatDate(message.created_at)}</div>
+
+                </>
+              
+              )
+                
           }
             
           </div>
@@ -536,6 +571,7 @@ console.log("editmsggggg",EditMsg)
 
 
             <div>{Couter.message}</div>
+            
             {Couter.media_url && (
               <div className="mt-2">
                 {Couter.media_type === "image" ? (
@@ -557,17 +593,48 @@ console.log("editmsggggg",EditMsg)
        }
       
 
-    <form onSubmit={handleSubmit} className="mt-2 flex items-center">
-      <label className="cursor-pointer">
-        <CiImageOn className="w-8 h-8" />
-        <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="hidden" />
-      </label>
-      <input type="text" placeholder="Type a message..." value={message} className="flex-1 p-2 border rounded-lg" onChange={(e) => setMessage(e.target.value)} />
-      <button type="button" onClick={recording ? stopRecording : startRecording} className="ml-2 p-2 rounded-full bg-red-500 text-white">
-        {recording ? <FaStop /> : <FaMicrophone />}
-      </button>
-      <button type="submit" className="ml-2 p-2 bg-blue-500 text-white rounded-lg">Send</button>
-    </form>
+      <form onSubmit={handleSubmit} className="mt-2">
+  <div className="flex items-center rounded-full border px-3 py-2 bg-white">
+    {/* Left - Mic Icon */}
+    <button
+      type="button"
+      onClick={recording ? stopRecording : startRecording}
+      className="text-gray-500 mr-2"
+    >
+      {recording ? <FaStop className="w-5 h-5" /> : <FaMicrophone className="w-5 h-5" />}
+    </button>
+
+    {/* Input field */}
+    <input
+      type="text"
+      placeholder="Type a message..."
+      value={message}
+      onChange={(e) => setMessage(e.target.value)}
+      className="flex-1 outline-none border-none text-sm bg-transparent"
+    />
+
+    {/* Right - Image upload */}
+    <label className="cursor-pointer text-gray-500 mr-2">
+      <CiImageOn className="w-5 h-5" />
+      <input
+        type="file"
+        accept="image/*,video/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+    </label>
+
+    {/* Right - Send button */}
+    <button
+      type="submit"
+      className="text-blue-500"
+    >
+      <FiSend className="w-5 h-5" />
+    </button>
+  </div>
+</form>
+
+  </div>
   </div>
   );
 }

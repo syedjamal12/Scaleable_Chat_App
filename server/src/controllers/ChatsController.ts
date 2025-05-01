@@ -46,6 +46,7 @@ class ChatsController {
 console.log("coter reply backend controller",formattedCounterReply)
   const data = await prisma.chats.create({
     data: {
+      id:body.id,
       group_id: body.group_id,
       name: body.name,
       message: body.message,

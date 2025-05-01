@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "git-crypt": "^0.0.1"
   }
 }

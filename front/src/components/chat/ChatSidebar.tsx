@@ -1,5 +1,5 @@
 import { getSocket } from "@/lib/socket.config";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ChatSidebar({
   users,
@@ -62,7 +62,7 @@ export default function ChatSidebar({
   console.log("sidebaaaar user", ChatUser);
   console.log("check online", userStatus);
   return (
-    <div className=" md:block h-screen overflow-y-scroll  bg-muted px-2 w-40%" style={{paddingRight:"38px"}}>
+    <div className="hidden md:block h-screen overflow-y-scroll  bg-muted px-2 w-40%" style={{paddingRight:"38px"}}>
       <h1 className="text-2xl font-extrabold py-4 ">Users</h1>
       {users.length > 0 &&
         users.map((item, index) => (

@@ -42,7 +42,7 @@ export default function EditMsgChat({
   const [title, setTitle] = useState(EditMessage.message); // Single state for title
   const [passcode, setPasscode] = useState(EditMessage.id); // Single state for passcode
   console.log("edit msg id in edit", group.id);
-
+console.log("editt msg on edit",EditMessage)
   useEffect(() => {
     socket.emit("joinRoom", group.id);
     console.log("Joining room:", group.id);

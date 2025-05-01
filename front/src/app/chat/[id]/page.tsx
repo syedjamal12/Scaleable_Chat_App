@@ -1,8 +1,7 @@
-import React from "react";
 import ChatBase from "@/components/chat/ChatBase";
+import { fetchChatMsg } from "@/fetch/chatsFetch";
 import { fetchChatSingleGroup, groupChatUsers } from "@/fetch/groupFetch";
 import { notFound } from "next/navigation";
-import { fetchChatMsg } from "@/fetch/chatsFetch";
 
   const page = async({ params }: { params: { id: string } }) => {
   console.log("The group id", params?.id);

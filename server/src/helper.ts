@@ -31,6 +31,7 @@ console.log("Counter Reply Value:", data.counter_reply);
 
       await prisma.chats.create({
           data:{
+            id:data.id,
             group_id: data.group_id,
                 message: data.message,
                 name: data.name,

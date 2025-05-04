@@ -236,10 +236,6 @@ useEffect(() => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if(message===""){
-      return 
-    }
-
     const formData = new FormData();
 
     const payload: MessageType = {

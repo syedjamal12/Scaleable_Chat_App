@@ -11,6 +11,7 @@ import redis from "./config/redis.config.js";
 import { instrument } from "@socket.io/admin-ui";
 import { connectKafkaProducer } from "./config/kafka.config.js";
 import { consumeMessage } from "./helper.js";
+import dns from 'dns';
 const PORT = process.env.PORT || 7000;
 const server = createServer(app);
 const io = new Server(server, {
@@ -26,7 +27,12 @@ instrument(io, {
 });
 setupSocket(io);
 export { io };
+dns.lookup('redis', (err, address) => {
+    console.log('Redis resolved to:', address); // should be something like 172.18.0.3
+});
 // Log the port being used
+console.log("Redis connected to:", process.env.REDIS_HOST);
+console.log("Kafka broker used:", process.env.KAFKA_BROKER);
 console.log(`Using PORT: ${PORT}`);
 // Log every incoming request
 app.use((req, res, next) => {

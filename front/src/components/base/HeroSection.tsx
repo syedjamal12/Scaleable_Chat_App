@@ -18,7 +18,14 @@ export default function HeroSection() {
         </Button>
       </Link>
 
-      <div className="mt-12 w-full max-w-5xl flex justify-center">
+      <div className="mt-12 w-full max-w-5xl flex justify-center" style={{display:"flex",flexDirection:"column",alignItems:"center"}}>
+        <h4 style={{fontSize:"27px",color:"brown",fontWeight:"600",paddingBottom:"13px"}}>✨ Talk to your friends and summon AI anytime — just start your message with "@ai".</h4>
+        <img 
+        src="/images/Leonardo_Phoenix_10_Scene_A_Web_chat_app_interfaceParticipants_0.jpg"
+         alt="Illustration"
+          className="w-full"
+          style={{borderRadius:"22px"}}
+        />
         {/* Placeholder for Illustration/Image */}
         <img
           src="/images/conversation.svg"

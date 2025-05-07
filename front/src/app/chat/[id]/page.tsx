@@ -9,7 +9,8 @@ type PageProps = {
   };
 };
 
-export default async function Page({ params }: PageProps) {
+export default async function Page(props: PageProps) {
+  const { params } = props;
   const { id } = params;
 
   if (id.length !== 36) {

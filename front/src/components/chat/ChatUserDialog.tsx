@@ -6,6 +6,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogClose
 } from "@/components/ui/dialog";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -27,6 +28,7 @@ export default function ChatUserDialog({
   const params = useParams();
   console.log("grouupp checkkk",group)
   console.log("idddddd",params["id"])
+    const [loading, setLoading] = useState(false);
   const [state, setState] = useState({
     name: "",
     passcode: "",
@@ -53,6 +55,7 @@ export default function ChatUserDialog({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    setLoading(true)
     const localData = localStorage.getItem(params["id"] as string);
     if (!localData) {
       try {
@@ -69,24 +72,31 @@ export default function ChatUserDialog({
       }
 
         if (group.passcode != state.passcode) {
+          setLoading(false)
             return toast.error("Please enter correct passcode!");
           }
         const { data } = await axios.post(CHAT_GROUP_USERS_CREATE,formData,);
         clearCache("chat");
         
-        localStorage.setItem(
+       localStorage.setItem(
           params["id"] as string,
           JSON.stringify(data?.data)
         );
+        const datacheck = localStorage.getItem(params["id"] as string);
+console.log("done local",datacheck)
+
+        setOpen(false);
+        setLoading(false)
         toast.success(`welcome in ${group.title} group`)
       } catch (error) {
+        setLoading(false)
         toast.error("Something went wrong.please try again!");
       }
     }
     if (group.passcode != state.passcode) {
+      setLoading(false)
       toast.error("Please enter correct passcode!");
-    } else {
-      setOpen(false);
+      
     }
   };
 
@@ -138,7 +148,7 @@ export default function ChatUserDialog({
             />
           </div>
           <div className="mt-2">
-            <Button className="w-full">Submit</Button>
+            <Button className="w-full" disabled={loading}> {loading ? "Processing..." : "Submit"}</Button>
           </div>
         </form>
       </DialogContent>

@@ -29,14 +29,17 @@ import { TbShare3 } from "react-icons/tb";
 export default function Chats({
   group,
   oldMessages,
-  chatUser,
+chatUser
 }: {
   group: GroupChatType;
   oldMessages: Array<MessageType> | [];
   chatUser?: GroupChatUserType;
 }) {
-  const socket = getSocket(String(chatUser?.id));
 
+ console.log("group on chat",group)
+console.log("chat user tmc",chatUser)
+  const socket = getSocket(String(chatUser?.id));
+console.log("socket kya h", socket)
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<Array<MessageType>>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -56,7 +59,7 @@ export default function Chats({
   useEffect(() => {
     socket.emit("joinRoom", group.id);
     console.log("Joining room:", group.id);
-  }, [group.id]);
+  }, [group.id,chatUser?.id]);
   
   useEffect(() => {
     socket.on("editMessage", (updatedMessage) => {
@@ -119,7 +122,7 @@ if (lastMessage?.counter_reply) {
   // console.log("Parsed counter_reply:", counterReplyObject);
   console.log("Counter Reply Message:", CounterMsg(lastMessage.counter_reply));
 }
-  console.log("chatuserrrrr",chatUser)
+  console.log("chatuserrrrr chat",chatUser)
   // Handle file selection (image/video)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -142,17 +145,19 @@ if (lastMessage?.counter_reply) {
   };
 
   useEffect(() => {
-   // ✅ Send both `room` and `userId`
-   socket.auth = { room: group.id, userId: chatUser?.id };
-    socket.connect();
-    socket.emit("joinRoom", group.id);
-    console.log("Joining room:", group.id);
+  if (!chatUser?.id) return;
 
-    return () => {
-      socket.emit("leaveRoom", group.id);
-      socket.off("editMessage"); // Cleanup listener
-    };
-  }, [group.id]);
+  socket.auth = { room: group.id, userId: chatUser.id };
+  socket.connect();
+  socket.emit("joinRoom", group.id);
+  console.log("Joining room:", group.id);
+
+  return () => {
+    socket.emit("leaveRoom", group.id);
+    socket.off("editMessage");
+  };
+}, [group.id, chatUser?.id]);
+
   
 
   useEffect(() => {
@@ -340,7 +345,7 @@ function formatDate(dateString : string) {
       <div ref={messagesEndRef} />
       <div className="flex flex-col gap-2">
         {messages.map((message,index) => (
-          <div key={message.id || index} style={{display:"flex",flexDirection:"row"}} className={`${message.name === chatUser?.name ? " self-end" : " self-start"}`}>
+          <div key={message.id || index} style={{display:"flex",flexDirection:"row"}} className={`${message.name  === chatUser?.name ? " self-end" : " self-start"}`}>
             {
                 message.name === chatUser?.name && (
                   <div onClick={()=>forCounter(message)}>

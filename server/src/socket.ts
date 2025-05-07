@@ -82,7 +82,7 @@ socket.on("message", async (data) => {
     socket.on("editMessage", async (updatedMessage) => {
       console.log("✏️ Edit message received on server:", updatedMessage);
 
-      // Broadcast edited message to all users in the room (except sender)
+      /// ✅ Broadcast to all users in the room, including the sender
       io.to(socket.room).emit("editMessage", updatedMessage);
     });
 

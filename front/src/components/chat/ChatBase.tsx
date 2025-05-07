@@ -10,6 +10,7 @@ import ChatNav from "./ChatNav";
 import ChatUserDialog from "./ChatUserDialog";
 import { json } from "stream/consumers";
 import Chats from "./Chats";
+import { notFound } from "next/navigation";
 
 const ChatBase = ({
   group,
@@ -21,21 +22,36 @@ const ChatBase = ({
   oldMessages: Array<MessageType> | []
 }) => {
  const[chatUser, setChatUser]=useState<GroupChatUserType>()
+ const [refreshKey, setRefreshKey] = useState(0);
+ const[open,setOpen]=useState(true)
+
+ const handleCloseDialog = () => {
+  setOpen(false);
+  setRefreshKey(prev => prev + 1); // force refresh
+};
+
+
+
  useEffect(()=>{
     const data = localStorage.getItem(group.id)
     if(data){
       const Pdata = JSON.parse(data)
       setChatUser(Pdata);
     }
- },[group.id])
+ },[group.id,open])
 
-  const[open,setOpen]=useState(true)
+ 
+
+
+console.log("chat yha check",chatUser)
+
+  
   return (
     <div className="flex w-100%">
-      <ChatSidebar users={users} group={group}/>
+      <ChatSidebar users={users} group={group} ChatUser={chatUser}/>
       <div className="w-full  bg-gradient-to-b from-gray-50 to-white">
       {
-        open ? <ChatUserDialog open={open} setOpen={setOpen} group={group}/> : <ChatNav chatGroup={group} users={users}/>
+        open ? <ChatUserDialog open={open} setOpen={handleCloseDialog} group={group}/> : <ChatNav chatGroup={group} users={users}/>
       }
       
 <Chats group={group} chatUser={chatUser} oldMessages={oldMessages}/>

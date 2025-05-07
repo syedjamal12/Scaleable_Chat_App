@@ -4,27 +4,21 @@ import { useEffect, useState } from "react";
 export default function ChatSidebar({
   users,
   group,
+  ChatUser
 }: {
   users: Array<GroupChatUserType> | [];
   group: GroupChatType;
+  ChatUser?: GroupChatUserType;
 }) {
-  const [ChatUser, setChatUser] = useState<GroupChatUserType | null>(null);
   const [userStatus, setUserStatus] = useState<{
     [key: string]: { status: string; lastSeen?: string };
   }>({});
   const socket = getSocket(String(ChatUser?.id));
 
-  useEffect(() => {
-    const data = localStorage.getItem(group.id);
-    console.log("new user")
-    if (data) {
-      const parsedData = JSON.parse(data);
-      setChatUser(parsedData);
-    }
-  }, [group.id]);
+ 
 
   useEffect(() => {
-    if (!ChatUser) return; // ✅ Prevents issues if ChatUser is not loaded yet
+    if (!ChatUser?.id) return; // ✅ Prevents issues if ChatUser is not loaded yet
   
     console.log("check user in sidebar", String(ChatUser?.id));
     socket.auth = { room: group.id, userId: ChatUser.id };
@@ -36,12 +30,12 @@ export default function ChatSidebar({
       socket.emit("leaveRoom", group.id);
       socket.disconnect();
     };
-  }, [ChatUser, group.id]); // ✅ Dependency includes ChatUser
+  }, [ChatUser?.id, group.id]); // ✅ Dependency includes ChatUser
    // ✅ Dependency includes ChatUser
 
   // ✅ Listen for user status updates
   useEffect(() => {
-    if (!ChatUser) return;
+    if (!ChatUser?.id) return;
   
     const handleStatusUpdate = (data: { userId: string; status: string; lastSeen?: string }) => {
       setUserStatus((prev) => ({
@@ -55,7 +49,7 @@ export default function ChatSidebar({
     return () => {
       socket.off("updateUserStatus", handleStatusUpdate);
     };
-  }, [ChatUser]); // ✅ Depend on ChatUser to ensure updates
+  }, [ChatUser?.id,group.id]); // ✅ Depend on ChatUser to ensure updates
    // ✅ Ensure it updates when ChatUser changes
   
 

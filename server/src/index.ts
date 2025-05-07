@@ -19,7 +19,11 @@ const server = createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://admin.socket.io"],
+    origin: [
+      "http://localhost:3000",
+      "https://admin.socket.io",
+      "https://scaleable-chat-app-tgbw.vercel.app" // ✅ Add this
+    ],
     credentials: true,
   },
   adapter: createAdapter(redis),
@@ -51,7 +55,10 @@ app.use((req, res, next) => {
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:3000", // Replace with your frontend URL
+    origin: [
+      "http://localhost:3000",
+      "https://scaleable-chat-app-tgbw.vercel.app" // ✅ Add this
+    ], // Replace with your frontend URL
     credentials: true, // Allow credentials
   })
 );

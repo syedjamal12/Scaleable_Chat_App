@@ -1,7 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 
 export const kafka = new Kafka({
-  brokers: ['35.174.15.111:9092'], // EC2 Kafka broker
+  brokers: ['3.221.242.102:9092'], // EC2 Kafka broker
   logLevel: logLevel.ERROR,
   // ssl: false,           // Don't need this
   // sasl: {...}           // Don't use this
